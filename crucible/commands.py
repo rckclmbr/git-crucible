@@ -17,8 +17,8 @@ def get_config_values(opts):
                 return default
             else:
                 raise Exception("'%s' is required" % key)
-                
         return opts[key]
+
     opts['host'] = _get_config_value(opts, 'host', 'Crucible base url:')
     if not opts['host'].endswith('/'):
         opts['host'] += '/'
@@ -35,7 +35,6 @@ def get_config_values(opts):
 def get_patch_text(infile):
     """ Validates patch exists and returns string """
     return "".join(infile.readlines())
-
 
 class CreateReview(object):
 

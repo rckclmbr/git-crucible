@@ -39,7 +39,6 @@ args = {
     'packages': ["crucible"],
     'scripts': ["bin/git-crucible"],
     'cmdclass': cmdclasses,
-    'install_requires': ['restkit'],
     'classifiers': [
         'Programming Language :: Python',
         'Programming Language :: Python :: 2.6',

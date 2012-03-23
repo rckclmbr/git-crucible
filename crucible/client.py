@@ -6,14 +6,10 @@ Submits diffs to Crucible.
 '''
 
 
-import os
-import sys
-import tempfile
 from urlparse import urljoin
 import xml.etree.ElementTree as ElementTree
 from xml.sax.saxutils import escape
-import cStringIO
-from restkit import request, BasicAuth
+from .rest import request
 
 CREATE_REVIEW_URL = 'rest-service/reviews-v1'
 ADD_PATCH_URL = 'rest-service/reviews-v1/%s/patch'
@@ -56,10 +52,6 @@ ADD_PATCH_XML_TEMPLATE = \
 </addPatch>
 '''
 
-def _successful(response):
-    return (response.status_int // 100) is 2
-
-
 class API(object):
 
     def __init__(self, host, username, password, verbose=False, debug=False):
@@ -78,15 +70,14 @@ class API(object):
         if self.debug:
             return
 
-        resp = request(url,
-                       method='POST',
-                       body=body,
-                       filters=[BasicAuth(self.username, self.password)],
+        try:
+            resp = request(url, method='POST', body=body,
                        headers={'Content-Type': 'application/xml',
                                 'Accept': 'application/xml'},
-                       follow_redirect=True)
-        if not _successful(resp):
-            xml = resp.body_string()
+                       username=self.username,
+                       password=self.password)
+        except HTTPError, e:
+            xml = e.read()
             if self.verbose:
                 print xml
             message = ElementTree.fromstring(xml).findtext('.//message')
@@ -117,7 +108,7 @@ class API(object):
         resp = self._post(CREATE_REVIEW_URL, body, "Unable to create new review")
         if self.debug:
             return "CR-123"
-        xml = resp.body_string()
+        xml = resp.read()
         return ElementTree.XML(xml).findtext('.//permaId/id')
 
     def open_review(permaid):
