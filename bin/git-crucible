@@ -1,0 +1,59 @@
+#!/usr/bin/env python
+
+from crucible.crucible import API
+from crucible import commands
+import argparse
+import ConfigParser
+import os
+import sys
+
+def parse_args(commands):
+    defaults = dict()
+    config_file = os.path.expanduser("~/.git_crucible.conf")
+    if os.path.isfile(config_file):
+        config = ConfigParser.SafeConfigParser()
+        config.read([config_file])
+        defaults.update(config.items("crucible"))
+
+    parser = argparse.ArgumentParser(description="""Submit code reviews to Crucible.""", 
+        formatter_class=argparse.RawTextHelpFormatter,
+        epilog="""
+
+Config file:
+    All config options can also be specified in the file ~/.git_crucible.conf.
+    For example:
+
+    [crucible]
+    host=http://crucible.backcountry.com/crucible
+    username=jbraegger
+    password=test
+    reviewers=nbrunson,aglemann
+    repository=atg-backcountry-ca
+    project=CR
+
+    If you have the above in your config, the rest is easy.  
+
+Examples:
+    See specific command help for examples (e.g. git-crucible create-review -h)
+    """)
+
+    parser.set_defaults(**defaults)
+    parser.add_argument("--host", help="base url of Crucible")
+    parser.add_argument("--username", help="Crucible username")
+    parser.add_argument("--password", help="Crucible password")
+    parser.add_argument("--verbose", action="store_true", default=False, help="Print full server requests and responses")
+    parser.add_argument("--debug", action="store_true", default=False, help="Don't actually send any requests")
+
+    subparsers = parser.add_subparsers()
+    for command in commands:
+        subparser = subparsers.add_parser(command.command, help=command.help, epilog=command.epilog,
+                                            formatter_class=argparse.RawTextHelpFormatter)
+        command.config_parser(subparser)
+        subparser.set_defaults(cls=command)
+
+    return vars(parser.parse_args())
+
+if __name__ == "__main__":
+    args = parse_args([commands.CreateReview, commands.AddPatch]);
+    api = API(args["host"], args["username"], args["password"], verbose=args["verbose"], debug=args["debug"])
+    args.get("cls").run(api, args)
