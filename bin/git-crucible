@@ -8,6 +8,8 @@ import os
 import sys
 
 def parse_args(commands):
+
+    # Get default arguments from config file
     defaults = dict()
     config_file = os.path.expanduser("~/.git_crucible.conf")
     if os.path.isfile(config_file):
@@ -49,11 +51,11 @@ Examples:
         subparser = subparsers.add_parser(command.command, help=command.help, epilog=command.epilog,
                                             formatter_class=argparse.RawTextHelpFormatter)
         command.config_parser(subparser)
-        subparser.set_defaults(cls=command)
+        subparser.set_defaults(command=command)
 
     return vars(parser.parse_args())
 
 if __name__ == "__main__":
     args = parse_args([commands.CreateReview, commands.AddPatch]);
     api = API(args["host"], args["username"], args["password"], verbose=args["verbose"], debug=args["debug"])
-    args.get("cls").run(api, args)
+    args.get("command").run(api, args)

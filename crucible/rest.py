@@ -1,6 +1,7 @@
 import urllib2
 import base64
 
+
 def request(url, method, body=None, headers={}, username=None, password=None):
     headers={'Content-Type': 'application/xml',
              "Accept": 'application/xml'}
