@@ -39,6 +39,8 @@ args = {
     'packages': ["crucible"],
     'scripts': ["bin/git-crucible"],
     'cmdclass': cmdclasses,
+    'tests_require': ["nose", "mock"],
+    'test_suite': "nose.collector",
     'classifiers': [
         'Programming Language :: Python',
         'Programming Language :: Python :: 2.6',

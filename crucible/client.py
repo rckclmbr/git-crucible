@@ -1,15 +1,10 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
-'''
-Submits diffs to Crucible.
-'''
-
-
+from __future__ import absolute_import
 from urlparse import urljoin
 import xml.etree.ElementTree as ElementTree
 from xml.sax.saxutils import escape
-from .rest import request
+from crucible.rest import request
+import urllib2
 
 CREATE_REVIEW_URL = 'rest-service/reviews-v1'
 ADD_PATCH_URL = 'rest-service/reviews-v1/%s/patch'
@@ -72,11 +67,9 @@ class API(object):
 
         try:
             resp = request(url, method='POST', body=body,
-                       headers={'Content-Type': 'application/xml',
-                                'Accept': 'application/xml'},
                        username=self.username,
                        password=self.password)
-        except HTTPError, e:
+        except urllib2.HTTPError, e:
             xml = e.read()
             if self.verbose:
                 print xml
@@ -103,7 +96,7 @@ class API(object):
         jira_issue = "" if not jira_issue else "<jiraIssueKey>%s</jiraIssueKey>" % escape(jira_issue),
 
         body = CREATE_REVIEW_XML_TEMPLATE % \
-               (escape(self.username), escape(self.username), escape(description), jira_issue,
+               (escape(self.username), escape(self.username), escape(description), jira_issue[0],
                 escape(moderator), escape(title[:255]), escape(project))
         resp = self._post(CREATE_REVIEW_URL, body, "Unable to create new review")
         if self.debug:

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<addPatch>
+    <patch>a patch</patch>
+    <anchor>
+        <anchorPath></anchorPath>
+        <anchorRepository>repo</anchorRepository>
+        <stripCount>1</stripCount>
+    </anchor>
+</addPatch>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<createReview>
+    <reviewData>
+        <allowReviewersToJoin>true</allowReviewersToJoin>
+        <author>
+            <userName>jim</userName>
+        </author>
+        <creator>
+            <userName>jim</userName>
+        </creator>
+        <description>description</description>
+        <jiraIssueKey>JIRA-ISSUE</jiraIssueKey>
+        <moderator>
+            <userName>moderator</userName>
+        </moderator>
+        <name>title</name>
+        <projectKey>project</projectKey>
+        <state>Review</state>
+        <type>REVIEW</type>
+    </reviewData>
+</createReview>
