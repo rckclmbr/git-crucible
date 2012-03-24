@@ -26,11 +26,11 @@ Config file:
     For example:
 
     [crucible]
-    host=http://crucible.backcountry.com/crucible
+    host=http://crucible.yourcompany.com/crucible
     username=jbraegger
     password=test
     reviewers=nbrunson,aglemann
-    repository=atg-backcountry-ca
+    repository=gitreponame
     project=CR
 
     If you have the above in your config, the rest is easy.  
