@@ -7,7 +7,7 @@ import urllib2
 import os
 
 def _read_file(filename):
-    f = open(os.path.join(os.path.dirname(__file__), filename))
+    f = open(os.path.join(os.path.dirname(__file__), "data", filename))
     ret = "".join(f.readlines())
     f.close()
     return ret
