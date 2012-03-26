@@ -1,36 +1,21 @@
 import argparse
+import ConfigParser
+import os
+from crucible.client import API
 
 
-def get_config_values(opts):
-    def _prompt(description, default):
-        res = raw_input(description)
-        if not res:
+def prompt(opts, key, description, default=None, allowEmpty=False, echo=True):
+    if not opts[key]:
+        if not opts["INFILE"].name == "<stdin>":
+            while not opts[key]:
+                res = raw_input(description)
+                if not res and allowEmpty:
+                    opts[key] = default
+                    return default
+                opts[key] = res
+        elif allowEmpty:
             return default
-    def _get_config_value(opts, key, description, default=None, allowEmpty=False, echo=True):
-        if not opts[key]:
-            if not opts["INFILE"].name == "<stdin>":
-                while not opts[key]:
-                    opts[key] = _prompt(description, default)
-                    if opts[key] or allowEmpty:
-                        break
-            elif allowEmpty:
-                return default
-            else:
-                raise Exception("'%s' is required" % key)
-        return opts[key]
-
-    opts['host'] = _get_config_value(opts, 'host', 'Crucible base url:')
-    if not opts['host'].endswith('/'):
-        opts['host'] += '/'
-    opts['username'] = _get_config_value(opts, 'username', 'username: ')
-    opts['password'] = _get_config_value(opts, 'password', 'password: ', allowEmpty=True, echo=False)
-    opts['reviewers'] = _get_config_value(opts, 'reviewers', 'reviewers (comma separated, e.g. "fred,joe,matt"): ', allowEmpty=True)
-    opts['project'] = _get_config_value(opts, 'project', 'project (default is "CR"): ', default='CR')
-    opts['repository'] = _get_config_value(opts, 'repository', 'Git Repository: ', allowEmpty=True)
-    opts['title'] = _get_config_value(opts, 'title', 'Title (default is ""): ')
-    opts['jira_issue'] = _get_config_value(opts, 'jira_issue', 'JIRA Issue: ', allowEmpty=True)
-    opts['description'] = _get_config_value(opts, 'description', 'Description (default is ""): ', allowEmpty=True, default="")
-    return opts
+    return opts[key]
 
 def get_patch_text(infile):
     """ Validates patch exists and returns string """
@@ -58,21 +43,32 @@ Examples:
     """
 
     @staticmethod
+    def prompt_for_config(args):
+        prompt(args, 'title', 'Title (""): ', allowEmpty=True, default="")
+        prompt(args, 'project', 'project ("CR"): ', default='CR')
+        prompt(args, 'repository', 'Git Repository: ', allowEmpty=True)
+        prompt(args, 'reviewers', 'reviewers (comma separated, e.g. "fred,joe,matt"): ', allowEmpty=True)
+        prompt(args, 'jira_issue', 'JIRA Issue: (""): ', allowEmpty=True)
+        prompt(args, "moderator", "Moderator of the review (optional): ", allowEmpty=True)
+        prompt(args, 'description', 'Description (""): ', allowEmpty=True, default="")
+        print args
+        return args
+
+    @staticmethod
     def config_parser(parser):
         parser.add_argument('INFILE', type=argparse.FileType('r'),
             help="A patch-file to add.  Note when using stdin, you must specify all parameters"\
                  " on the command-line")
-        parser.add_argument("--title", help="Title of the post")
-        parser.add_argument("--project", help="Crucible project")
-        parser.add_argument("--repository", help="Crucible git repository the commit is in")
-        parser.add_argument("--reviewers", help="Reviewers (comma-separated, e.g. \"fred,joe,matt\")")
-        parser.add_argument("--jira_issue", help="The JIRA issue (e.g. JIRA-1234) (optional)")
-        parser.add_argument("--moderator", help="Moderator of the review (optional)")
-        parser.add_argument("--description", help="Description or statement of this review", default="")
+        parser.add_argument("-t", "--title", help="Title of the post")
+        parser.add_argument("-p", "--project", help="Crucible project")
+        parser.add_argument("-r", "--repository", help="Crucible git repository the commit is in")
+        parser.add_argument("-R", "--reviewers", help="Reviewers (comma-separated, e.g. \"fred,joe,matt\")")
+        parser.add_argument("-j", "--jira_issue", help="The JIRA issue (e.g. JIRA-1234) (optional)")
+        parser.add_argument("-m", "--moderator", help="Moderator of the review (optional)")
+        parser.add_argument("-d", "--description", help="Description or statement of this review", default="")
 
     @staticmethod
     def run(api, args):
-        args = get_config_values(args)
         args["patch_text"] = get_patch_text(args["INFILE"])
 
         permaid = api.create_review(*[args[i] for i in ("title", "description", "project", "jira_issue", "moderator")])
@@ -92,16 +88,93 @@ class AddPatch(object):
     """
 
     @staticmethod
+    def prompt_for_config(args):
+        prompt(args, 'repository', 'Git Repository: ', allowEmpty=True)
+        return args
+
+    @staticmethod
     def config_parser(parser):
         parser.add_argument("CODEREVIEW", help="Which code review to add the patch to (e.g. CR-123)")
         parser.add_argument('INFILE', type=argparse.FileType('r'),
             help="A patch-file to add.  Note when using stdin, you must specify all parameters"\
                  " on the command-line")
-        parser.add_argument("--repository", help="Crucible git repository the commit is in")
+        parser.add_argument("-r", "--repository", help="Crucible git repository the commit is in")
 
     @staticmethod
     def run(api, args):
-        args = get_config_values(args)
         patch_text = get_patch_text(args["INFILE"])
         api.add_patch(args["permaid"], patch_text, args["repository"])
         print "Added patch to %s" % args["permaid"]
+
+
+class Main(object):
+    """Contains the main program.  Uses all other commands"""
+
+    epilog="""
+
+Config file:
+    All config options can also be specified in the file ~/.git_crucible.conf.
+    For example:
+
+    [crucible]
+    host=http://crucible.yourcompany.com/crucible
+    username=jbraegger
+    password=test
+    reviewers=nbrunson,aglemann
+    repository=gitreponame
+    project=CR
+
+    If you have the above in your config, the rest is easy.  
+
+Examples:
+    See specific command help for examples (e.g. git-crucible create-review -h)
+    """
+
+    commands = [CreateReview, AddPatch]
+
+    def run(self):
+        args = self.get_config();
+        args = self.prompt_for_config(args)
+        api = API(args["host"], args["username"], args["password"], verbose=args["verbose"], debug=args["debug"])
+        args.get("command").run(api, args)
+
+    def prompt_for_config(self, args):
+        prompt(args, 'host', 'Crucible base url:')
+        prompt(args, 'username', 'username: ')
+        prompt(args, 'password', 'password: ', allowEmpty=True, echo=False)
+        args = args.get("command").prompt_for_config(args)
+        return args
+
+    def validate_required_args(self, args):
+        for i in "host", "username", "password":
+            if not args[i]:
+                raise Exception("'%s' is required" % key)
+
+    def get_config(self):
+        parser = argparse.ArgumentParser(description="""Submit code reviews to Crucible.""", 
+            formatter_class=argparse.RawTextHelpFormatter, epilog=self.epilog)
+
+        parser.set_defaults(**self.get_config_file_settings())
+        parser.add_argument("--host", help="base url of Crucible")
+        parser.add_argument("--username", help="Crucible username")
+        parser.add_argument("--password", help="Crucible password")
+        parser.add_argument("--verbose", action="store_true", default=False, help="Print full server requests and responses")
+        parser.add_argument("--debug", action="store_true", default=False, help="Don't actually send any requests")
+
+        subparsers = parser.add_subparsers()
+        for command in self.commands:
+            subparser = subparsers.add_parser(command.command, help=command.help, epilog=command.epilog,
+                                                formatter_class=argparse.RawTextHelpFormatter)
+            command.config_parser(subparser)
+            subparser.set_defaults(command=command)
+
+        return vars(parser.parse_args())
+
+    def get_config_file_settings(self):
+        defaults = dict()
+        config_file = os.path.expanduser("~/.git_crucible.conf")
+        if os.path.isfile(config_file):
+            config = ConfigParser.SafeConfigParser()
+            config.read([config_file])
+            defaults.update(config.items("crucible"))
+        return defaults

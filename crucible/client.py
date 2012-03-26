@@ -50,6 +50,8 @@ ADD_PATCH_XML_TEMPLATE = \
 class API(object):
 
     def __init__(self, host, username, password, verbose=False, debug=False):
+        if not host.endswith('/'):
+            host += '/'
         self.username = username
         self.password = password
         self.host = host

@@ -18,8 +18,11 @@ class TestAPI(unittest.TestCase):
     def setUp(self):
         self.api = client.API("http://localhost/crucible", "jim", "bob")
 
+    def test_host_append(self):
+        self.assertEquals(self.api.host, "http://localhost/crucible/")
+
     def test_review_url(self):
-        self.assertEquals(self.api.review_url("CR-123"), "http://localhost/cru/CR-123")
+        self.assertEquals(self.api.review_url("CR-123"), "http://localhost/crucible/cru/CR-123")
 
     @patch("crucible.client.request")
     def test_create_review(self, request_mock):
@@ -27,19 +30,19 @@ class TestAPI(unittest.TestCase):
         response.read.return_value = "<base><permaId>CR-1234</permaId></base>"
         self.api.create_review("title", "description", "project", "JIRA-ISSUE", "moderator")
         body = _read_file("create_review_success_body.xml")
-        request_mock.assert_called_once_with('http://localhost/rest-service/reviews-v1', method="POST", 
+        request_mock.assert_called_once_with('http://localhost/crucible/rest-service/reviews-v1', method="POST", 
                             username='jim', password='bob', body=body)
 
     @patch("crucible.client.request")
     def test_add_reviewers(self, request_mock):
         self.api.add_reviewers("CR-1234", "nbrunson,aglemann")
-        request_mock.assert_called_once_with('http://localhost/rest-service/reviews-v1/CR-1234/reviewers', method="POST", 
+        request_mock.assert_called_once_with('http://localhost/crucible/rest-service/reviews-v1/CR-1234/reviewers', method="POST", 
                             username='jim', password='bob', body="nbrunson,aglemann")
 
     @patch("crucible.client.request")
     def test_add_patch(self, request_mock):
         self.api.add_patch("CR-1234", "a patch", "repo")
-        request_mock.assert_called_once_with('http://localhost/rest-service/reviews-v1/CR-1234/patch', method="POST", 
+        request_mock.assert_called_once_with('http://localhost/crucible/rest-service/reviews-v1/CR-1234/patch', method="POST", 
                             username='jim', password='bob', body=_read_file("add_patch_success_body.xml"))
 
     @patch("crucible.client.request")
