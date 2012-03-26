@@ -7,7 +7,10 @@ try:
 except ImportError:
     from distutils.core import setup
 from distutils.command.install_data import install_data
-from pypi2rpm.command.bdist_rpm2 import bdist_rpm2
+try:
+    from pypi2rpm.command.bdist_rpm2 import bdist_rpm2
+except:
+    from distutils.command.bdist_rpm import bdist_rpm as bdist_rpm2
 
 class osx_install_data(install_data):
     # On MacOS, the platform-specific lib dir is /System/Library/Framework/Python/.../
