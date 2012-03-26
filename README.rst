@@ -13,11 +13,11 @@ This is git-crucible, a command-line tool for submitting code review patches to 
 Install
 ======
 
-Latest Stable:
+Latest Stable::
 
     sudo pip install git-crucible
 
-or from Git:
+or from Git::
 
     git clone git://github.com/rckclmbr/git-crucible.git
     cd git-crucible
