@@ -11,8 +11,10 @@ class GitTest(unittest.TestCase):
     def setUp(self):
         self.curr = os.getcwd()
         os.chdir(os.path.join(os.path.dirname(__file__), "data/repo"))
+        os.rename("git", ".git")
 
     def tearDown(self):
+        os.rename(".git", "git")
         os.chdir(self.curr)
     
     def test_diff(self):

@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import sys
+import os
 try:
     from setuptools import setup
 except ImportError:
@@ -25,6 +26,38 @@ if sys.platform == "darwin":
 else:
     cmdclasses = {'install_data': install_data}
 
+def fullsplit(path, result=None):
+    """
+    Split a pathname into components (the opposite of os.path.join) in a
+    platform-neutral way.
+    """
+    if result is None:
+        result = []
+    head, tail = os.path.split(path)
+    if head == '':
+        return [tail] + result
+    if head == path:
+        return result
+    return fullsplit(head, [tail] + result)
+
+def is_not_module(filename):
+    return os.path.splitext(f)[1] not in ['.py', '.pyc', '.pyo']
+
+packages = []
+data_files = []
+for git_dir in ['tests', 'crucible']:
+    for dirpath, dirnames, filenames in os.walk(git_dir):
+        # Ignore dirnames that start with '.'
+        for i, dirname in enumerate(dirnames):
+            if dirname.startswith('.') and not dirname.startswith(".git"): del dirnames[i]
+        if '__init__.py' in filenames:
+            packages.append('.'.join(fullsplit(dirpath)))
+            data = [f for f in filenames if is_not_module(f)]
+            if data:
+                data_files.append([dirpath, [os.path.join(dirpath, f) for f in data]])
+        elif filenames:
+            data_files.append([dirpath, [os.path.join(dirpath, f) for f in filenames]])
+
 args = {
     'name': 'git-crucible',
     'version': __import__("crucible").__version__,
@@ -36,10 +69,9 @@ args = {
     'maintainer': 'Josh Braegger',
     'maintainer_email': 'rckclmbr@gmail.com',
     'license': 'BSD',
-    'packages': ["crucible"],
-    'data_files': ["tests/data/add_patch_success_body.xml", 
-                   "tests/data/create_review_success_body.xml",
-                  ],
+    'packages': ["crucible", "tests"],
+    'packages': packages,
+    'data_files': data_files,
     'scripts': ["bin/git-crucible"],
     'cmdclass': cmdclasses,
     'tests_require': ["nose", "mock"],
