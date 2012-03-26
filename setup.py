@@ -45,7 +45,7 @@ def is_not_module(filename):
 
 packages = []
 data_files = []
-for git_dir in ['tests', 'crucible']:
+for git_dir in ['crucible']:
     for dirpath, dirnames, filenames in os.walk(git_dir):
         # Ignore dirnames that start with '.'
         for i, dirname in enumerate(dirnames):

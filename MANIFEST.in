@@ -6,4 +6,3 @@ include MANIFEST.in
 recursive-include crucible *
 recursive-include docs *
 recursive-include bin *
-recursive-include tests *
