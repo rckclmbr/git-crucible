@@ -69,7 +69,6 @@ args = {
     'maintainer': 'Josh Braegger',
     'maintainer_email': 'rckclmbr@gmail.com',
     'license': 'BSD',
-    'packages': ["crucible", "tests"],
     'packages': packages,
     'data_files': data_files,
     'scripts': ["bin/git-crucible"],
