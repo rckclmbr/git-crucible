@@ -7,7 +7,7 @@ from crucible.client import API
 
 def prompt(opts, key, description, default=None, allowEmpty=False, echo=True):
     if not opts[key]:
-        if not opts["INFILE"].name == "<stdin>":
+        if opts["INFILE"].name != "<stdin>":
             while not opts[key]:
                 res = raw_input(description)
                 if not res and allowEmpty:
@@ -16,6 +16,8 @@ def prompt(opts, key, description, default=None, allowEmpty=False, echo=True):
                 opts[key] = res
         elif allowEmpty:
             return default
+        else:
+            raise Exception("%s is required" % key)
     return opts[key]
 
 def get_patch_text(infile):
