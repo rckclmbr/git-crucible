@@ -1,4 +1,3 @@
-import popen2
 import subprocess
 
 def diff(command):

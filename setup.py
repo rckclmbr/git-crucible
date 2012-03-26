@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2.6
 
 import sys
 import os
@@ -7,6 +7,7 @@ try:
 except ImportError:
     from distutils.core import setup
 from distutils.command.install_data import install_data
+from pypi2rpm.command.bdist_rpm2 import bdist_rpm2
 
 class osx_install_data(install_data):
     # On MacOS, the platform-specific lib dir is /System/Library/Framework/Python/.../
@@ -25,6 +26,7 @@ if sys.platform == "darwin":
     cmdclasses = {'install_data': osx_install_data}
 else:
     cmdclasses = {'install_data': install_data}
+cmdclasses["bdist_rpm2"] = bdist_rpm2
 
 def fullsplit(path, result=None):
     """
@@ -75,6 +77,7 @@ args = {
     'cmdclass': cmdclasses,
     'tests_require': ["nose", "mock"],
     'test_suite': "nose.collector",
+    'install_requires': "argparse",
     'classifiers': [
         'Programming Language :: Python',
         'Programming Language :: Python :: 2.6',
