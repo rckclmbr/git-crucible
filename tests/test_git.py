@@ -10,7 +10,7 @@ class GitTest(unittest.TestCase):
 
     def setUp(self):
         self.curr = os.getcwd()
-        os.chdir(os.path.join(os.path.dirname(__file__), "data/repo"))
+        os.chdir(os.path.join(os.path.dirname(__file__), "data/repo1"))
         os.rename("git", ".git")
 
     def tearDown(self):
