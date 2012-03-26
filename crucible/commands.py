@@ -51,7 +51,6 @@ Examples:
         prompt(args, 'jira_issue', 'JIRA Issue: (""): ', allowEmpty=True)
         prompt(args, "moderator", "Moderator of the review (optional): ", allowEmpty=True)
         prompt(args, 'description', 'Description (""): ', allowEmpty=True, default="")
-        print args
         return args
 
     @staticmethod
