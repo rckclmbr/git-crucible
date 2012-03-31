@@ -29,7 +29,7 @@ CREATE_REVIEW_XML_TEMPLATE = \
         </moderator>
         <name>%s</name>
         <projectKey>%s</projectKey>
-        <state>Review</state>
+        <state>Draft</state>
         <type>REVIEW</type>
     </reviewData>
 </createReview>
@@ -106,10 +106,9 @@ class API(object):
         xml = resp.read()
         return ElementTree.XML(xml).findtext('.//permaId/id')
 
-    def open_review(permaid):
+    def open_review(self, permaid):
         '''Takes the specified review from Draft to Under Review state.  Not yet 100%.'''
-        raise NotImplementedError()
-        self._post(APPROVE_URL % permaid)
+        self._post(APPROVE_URL % permaid, "", "Unable to open review")
 
     def review_url(self, permaid):
         """Returns the crucible url of the review"""

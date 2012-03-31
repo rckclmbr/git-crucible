@@ -81,6 +81,8 @@ Examples:
         if args["reviewers"]:
             print "Adding reviewers to review"
             api.add_reviewers(permaid, args["reviewers"])
+        print "Opening review"
+        api.open_review(permaid)
 
 class AddPatch(object):
 
@@ -105,8 +107,8 @@ class AddPatch(object):
     @staticmethod
     def run(api, args):
         patch_text = get_patch_text(args["INFILE"])
-        api.add_patch(args["permaid"], patch_text, args["repository"])
-        print "Added patch to %s" % args["permaid"]
+        api.add_patch(args["CODEREVIEW"], patch_text, args["repository"])
+        print "Added patch to %s" % args["CODEREVIEW"]
 
 
 class Main(object):
