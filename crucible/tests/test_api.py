@@ -53,7 +53,7 @@ class TestAPI(unittest.TestCase):
         try:
             ret = self.api._post("url", "body", "error_message")
         except Exception, e:
-            self.assertEquals(e.message, "error_message: You received an error")
+            self.assertEquals(str(e), "error_message: You received an error")
         else:
             assert False
 

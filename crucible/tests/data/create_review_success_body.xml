@@ -15,7 +15,7 @@
         </moderator>
         <name>title</name>
         <projectKey>project</projectKey>
-        <state>Review</state>
+        <state>Draft</state>
         <type>REVIEW</type>
     </reviewData>
 </createReview>
