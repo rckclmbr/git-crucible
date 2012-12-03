@@ -38,7 +38,8 @@ CREATE_REVIEW_XML_TEMPLATE = \
 ADD_PATCH_XML_TEMPLATE = \
 '''<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addPatch>
-    <patch>%s</patch>
+    <patch>%s
+diff end</patch>
     <anchor>
         <anchorPath></anchorPath>
         <anchorRepository>%s</anchorRepository>

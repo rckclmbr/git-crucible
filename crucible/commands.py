@@ -3,13 +3,17 @@ import argparse
 import ConfigParser
 import os
 from crucible.client import API
+from getpass import getpass
 
 
 def prompt(opts, key, description, default=None, allowEmpty=False, echo=True):
     if not opts[key]:
         if opts["INFILE"].name != "<stdin>":
             while not opts[key]:
-                res = raw_input(description)
+                if echo:
+                    res = raw_input(description)
+                else:
+                    res = getpass(description)
                 if not res and allowEmpty:
                     opts[key] = default
                     return default
