@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addPatch>
-    <patch>a patch</patch>
+    <patch>a patch
+diff end</patch>
     <anchor>
         <anchorPath></anchorPath>
         <anchorRepository>repo</anchorRepository>
